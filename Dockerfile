@@ -1,6 +1,6 @@
-FROM golang as builder
+FROM golang as build
 
-WORKDIR /app
+WORKDIR /project
 
 COPY go.mod .
 
@@ -8,11 +8,13 @@ RUN go mod download
 
 COPY . .
 
-RUN make
+RUN go build ./cmd/server
 
 FROM debian:stable-slim
 
-COPY --from=builder /app/server /usr/local/bin/
-COPY --from=builder /app/configs/config.toml /usr/local/.config/
+COPY --from=build /project/server /usr/local/bin/
+COPY --from=build /project/configs/config.toml /usr/local/сonfig/server/
 
-ENTRYPOINT [ "/usr/local/bin/server", "-config", "/usr/local/.config/config.toml" ]
+USER 1000
+
+ENTRYPOINT ["apiserver", "-config", "/usr/local/сonfig/server/apiserver.toml"]
